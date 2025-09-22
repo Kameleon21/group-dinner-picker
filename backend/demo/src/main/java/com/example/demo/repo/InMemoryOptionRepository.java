@@ -1,52 +1,57 @@
 package com.example.demo.repo;
 
 import com.example.demo.domain.Option;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+@Repository
 public class InMemoryOptionRepository implements OptionRepository {
-    private final ConcurrentMap<UUID,Option> store = new ConcurrentHashMap<>();
+    private final ConcurrentMap<UUID, Option> store = new ConcurrentHashMap<>();
 
     @Override
     public List<Option> findAll() {
-        // prevent external mutation of the maps values
+        // Return a defensive copy to avoid external mutation of the map’s values
         return store.values()
             .stream()
-            .map(this::copy) // to protect against external mutation
+            .map(this::copy) // protect against external mutation
             .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
-    public Optional<Option> findById(Long id) {
+    public Optional<Option> findById(UUID id) {
         Option found = store.get(id);
         return Optional.ofNullable(found == null ? null : copy(found));
     }
 
     @Override
     public Option save(Option option) {
+        // Ensure id + createdAt exist; domain constructor usually sets these,
+        // but we enforce here in case callers used the full constructor.
         UUID id = option.getId() != null ? option.getId() : UUID.randomUUID();
         option.setId(id);
 
+        // Store an internal copy to avoid callers holding a reference to our stored object
         Option toStore = copy(option);
         store.put(id, toStore);
 
-        // return fresh copy to the caller
+        // Return a fresh copy to the caller
         return copy(toStore);
     }
 
     @Override
-    public boolean existsByString(String name) {
+    public boolean existsByName(String name) {
         if (name == null) return false;
         String needle = name.trim().toLowerCase(Locale.ROOT);
         return store.values().stream()
             .anyMatch(o -> o.getName() != null &&
-             o.getName().trim().toLowerCase(Locale.ROOT).equals(needle));
+                o.getName().trim().toLowerCase(Locale.ROOT).equals(needle));
     }
 
-    private  Option copy(Option o) {
+    private Option copy(Option o) {
         Option c = new Option(
             o.getId(),
             o.getName(),
