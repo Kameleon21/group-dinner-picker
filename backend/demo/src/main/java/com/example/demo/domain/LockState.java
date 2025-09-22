@@ -11,6 +11,10 @@ public class LockState {
        this.lockedAt = lockedAt;
    }
 
+   public LockState() {
+       this(false, null);
+   }
+
     public boolean isLocked() {
         return locked;
     }
