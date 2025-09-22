@@ -15,6 +15,6 @@ public class SetLockRequest {
     public void setLocked(boolean locked) { this.locked = locked; }
 
     public boolean getLocked() {
-        return false;
+        return locked;
     }
 }
