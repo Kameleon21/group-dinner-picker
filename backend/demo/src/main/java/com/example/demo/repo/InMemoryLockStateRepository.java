@@ -1,9 +1,11 @@
 package com.example.demo.repo;
 
 import com.example.demo.domain.LockState;
+import org.springframework.stereotype.Repository;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+@Repository
 public class InMemoryLockStateRepository implements LockStateRepository {
 
     private final AtomicReference<LockState> ref = new AtomicReference<>(new LockState());
