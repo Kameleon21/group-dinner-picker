@@ -1,10 +1,10 @@
 package com.example.demo.repo;
 
-import com.example.demo.domain.Option;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import com.example.demo.domain.Option;
 
 public interface OptionRepository {
 
@@ -15,4 +15,10 @@ public interface OptionRepository {
     Option save(Option option);
 
     boolean existsByName(String name);
+
+    void deleteById(UUID id);
+
+    void deleteAll();
+
+    long count();
 }

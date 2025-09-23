@@ -1,21 +1,23 @@
 package com.example.demo.service;
 
-import com.example.demo.domain.Option;
-import com.example.demo.dto.CreateOptionRequest;
-import com.example.demo.dto.DtoMapper;
-import com.example.demo.dto.OptionResponse;
-import com.example.demo.dto.VoteRequest;
-import com.example.demo.repo.OptionRepository;
-import com.example.demo.service.exception.InvalidVoteDeltaException;
-import com.example.demo.service.exception.OptionNotFoundException;
-import com.example.demo.service.exception.VotingLockedException;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.demo.domain.Option;
+import com.example.demo.dto.CreateOptionRequest;
+import com.example.demo.dto.DtoMapper;
+import com.example.demo.dto.OptionResponse;
+import com.example.demo.dto.OptionsStatsResponse;
+import com.example.demo.dto.VoteRequest;
+import com.example.demo.repo.OptionRepository;
+import com.example.demo.service.exception.InvalidVoteDeltaException;
+import com.example.demo.service.exception.OptionNotFoundException;
+import com.example.demo.service.exception.VotingLockedException;
 
 @Service
 public class OptionService {
@@ -79,6 +81,40 @@ public class OptionService {
         o.setVotes(newVotes);
         Option updated = optionRepo.save(o);
         return DtoMapper.toOptionResponse(updated);
+    }
+
+    public void deleteOption(UUID id) {
+        if (lockService.isLocked()) {
+            throw new VotingLockedException();
+        }
+        if (!optionRepo.findById(id).isPresent()) {
+            throw new OptionNotFoundException(id);
+        }
+        optionRepo.deleteById(id);
+    }
+
+    public void resetAllOptions() {
+        optionRepo.deleteAll();
+    }
+
+    public OptionsStatsResponse getStats() {
+        List<Option> allOptions = optionRepo.findAll();
+        long totalOptions = allOptions.size();
+        long totalVotes = allOptions.stream().mapToInt(Option::getVotes).sum();
+        
+        OptionResponse mostPopularOption = null;
+        if (!allOptions.isEmpty()) {
+            Option mostPopular = allOptions.stream()
+                .max(Comparator.comparingInt(Option::getVotes))
+                .orElse(null);
+            if (mostPopular != null) {
+                mostPopularOption = DtoMapper.toOptionResponse(mostPopular);
+            }
+        }
+        
+        double averageVotes = totalOptions > 0 ? (double) totalVotes / totalOptions : 0.0;
+        
+        return new OptionsStatsResponse(totalOptions, totalVotes, mostPopularOption, averageVotes);
     }
 
 }
