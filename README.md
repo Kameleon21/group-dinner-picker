@@ -14,10 +14,10 @@ Group Dinner Picker helps teams, families, and friends make dining decisions col
 - **Java Version**: 17+
 
 ### Frontend
-- **Framework**: Angular
-- **TypeScript**: Latest
-- **Styling**: Angular Material / Bootstrap
-- **Build Tool**: Angular CLI
+- **Framework**: React 19
+- **Bundler**: Vite
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
 
 ### Infrastructure
 - **Containerization**: Docker & Docker Compose
@@ -27,7 +27,9 @@ Group Dinner Picker helps teams, families, and friends make dining decisions col
 ## Quickstart
 
 ### Prerequisites
-- Docker & Docker Compose
+- Docker & Docker Compose (optional, for container workflows)
+- Java 17+
+- Node.js 18+ and npm
 - Git
 
 ### Development Setup
@@ -37,13 +39,32 @@ Group Dinner Picker helps teams, families, and friends make dining decisions col
 git clone https://github.com/Kameleon21/group-dinner-picker.git
 cd group-dinner-picker
 
-# Start development environment
-docker-compose -f docker-compose.dev.yml up -d
+# Start backend (Spring Boot with Maven wrapper)
+cd backend/demo
+./mvnw spring-boot:run
 
-# Access the application
-# Frontend: http://localhost:4200
-# Backend API: http://localhost:8080
+# (open a new terminal, then run from the repository root)
+# Start the terminal-style frontend shell
+cd group-dinner-picker/frontend
+npm install
+npm run start
+
+# Access the application shell at http://localhost:4200
+# Backend API root: http://localhost:8080/api/v1
 # API Docs: http://localhost:8080/swagger-ui.html
+
+# Commands available within the frontend shell
+#   help               List commands
+#   options            List dinner options
+#   add "Name" <link>  Add a new option
+#   vote <id> <delta>  Adjust votes (+1/-1/up/down)
+#   delete <id>        Remove an option
+#   stats              View aggregate stats
+#   lock status|on|off Inspect or toggle voting lock
+#   reset              Clear options and unlock voting
+#   health             Check backend status
+#   man <command>      Show command manual entry
+#   clear              Reset terminal output
 ```
 
 ## Development (Docker)
@@ -75,17 +96,6 @@ docker-compose logs -f
 # Stop production environment
 docker-compose down
 ```
-
-## CI/CD
-
-This project uses GitHub Actions for continuous integration and deployment:
-
-- **Backend Build**: Automated testing and building of Spring Boot application
-- **Frontend Build**: Angular build and testing
-- **Docker Images**: Automated building and pushing to container registry
-- **Deployment**: Automated deployment to staging/production environments
-
-See `.github/workflows/` for detailed CI/CD configuration.
 
 ## API Documentation
 
