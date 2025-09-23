@@ -2,6 +2,7 @@ package com.example.demo.web;
 
 import com.example.demo.dto.CreateOptionRequest;
 import com.example.demo.dto.OptionResponse;
+import com.example.demo.dto.OptionsStatsResponse;
 import com.example.demo.dto.VoteRequest;
 import com.example.demo.service.OptionService;
 import jakarta.validation.Valid;
@@ -39,5 +40,16 @@ public class OptionController {
     @PostMapping("/vote")
     public OptionResponse vote(@Valid @RequestBody VoteRequest request) {
         return optionService.vote(request);
+    }
+
+    @DeleteMapping("/options/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteOption(@PathVariable UUID id) {
+        optionService.deleteOption(id);
+    }
+
+    @GetMapping("/options/stats")
+    public OptionsStatsResponse getStats() {
+        return optionService.getStats();
     }
 }

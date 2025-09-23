@@ -1,12 +1,16 @@
 package com.example.demo.repo;
 
-import com.example.demo.domain.Option;
-import org.springframework.stereotype.Repository;
-
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Repository;
+
+import com.example.demo.domain.Option;
 
 @Repository
 public class InMemoryOptionRepository implements OptionRepository {
@@ -49,6 +53,21 @@ public class InMemoryOptionRepository implements OptionRepository {
         return store.values().stream()
             .anyMatch(o -> o.getName() != null &&
                 o.getName().trim().toLowerCase(Locale.ROOT).equals(needle));
+    }
+
+    @Override
+    public void deleteById(UUID id) {
+        store.remove(id);
+    }
+
+    @Override
+    public void deleteAll() {
+        store.clear();
+    }
+
+    @Override
+    public long count() {
+        return store.size();
     }
 
     private Option copy(Option o) {
