@@ -70,6 +70,14 @@ npm run start
 # Keyboard: Ctrl+L or Ctrl+C clears the terminal output
 ```
 
+## Frontend Architecture
+
+- `frontend/src/features/terminal/useTerminalSession.ts` owns terminal session state (history, input, keyboard navigation) and delegates execution to command handlers.
+- `frontend/src/features/terminal/commands/` groups each shell command implementation and shared formatting logic so API orchestration stays out of React components.
+- `frontend/src/features/terminal/components/` contains the presentational building blocks (`TerminalView`, `TerminalHistory`, `TerminalPromptForm`, `TerminalHeader`) used by `App.tsx` to render the terminal UI.
+- `frontend/src/features/terminal/types.ts` defines the shared terminal entry shapes consumed across hooks and components.
+- `frontend/src/App.tsx` now composes the session hook with the presentational layer, keeping layout concerns separate from behavior.
+
 ## Development (Docker)
 
 The repository ships with `docker-compose.dev.yml`, which builds both the Spring Boot API and the Vite dev server. This path lets you run everything in containers without installing Java or Node locally.
