@@ -1,16 +1,14 @@
 package com.example.demo.domain;
 
 import java.time.Instant;
-import java.util.UUID;
-
 public class Option {
-    private UUID id;
+    private Long id;
     private String name;
     private String link;
     private int votes;
     private Instant createdAt;
 
-    public Option(UUID id, String name, String link, int votes, Instant createdAt) {
+    public Option(Long id, String name, String link, int votes, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.link = link;
@@ -20,14 +18,18 @@ public class Option {
 
     // constructor for new options ( id + createdAt generated here)
     public Option(String name, String link) {
-        this(UUID.randomUUID(), name, link, 0, Instant.now());
+        this(null, name, link, 0, Instant.now());
     }
 
-    public UUID getId() {
+    public Option(String name, String link, int votes) {
+        this(null, name, link, votes, Instant.now());
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

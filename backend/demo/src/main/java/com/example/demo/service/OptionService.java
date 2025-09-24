@@ -1,9 +1,7 @@
 package com.example.demo.service;
 
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -38,7 +36,7 @@ public class OptionService {
             .collect(Collectors.toList());
     }
 
-    public OptionResponse getOption(UUID id) {
+    public OptionResponse getOption(Long id) {
         Option o = optionRepo.findById(id).orElseThrow(() -> new OptionNotFoundException(id));
         return DtoMapper.toOptionResponse(o);
     }
@@ -52,13 +50,7 @@ public class OptionService {
         //     throw new DuplicateOptionException(req.getName());
         // }
 
-        Option toCreate = new Option(
-            UUID.randomUUID(),
-            req.getName(),
-            req.getLink(),
-            0,
-            Instant.now()
-        );
+        Option toCreate = new Option(req.getName(), req.getLink());
         Option saved = optionRepo.save(toCreate);
         return DtoMapper.toOptionResponse(saved);
     }
@@ -83,13 +75,11 @@ public class OptionService {
         return DtoMapper.toOptionResponse(updated);
     }
 
-    public void deleteOption(UUID id) {
+    public void deleteOption(Long id) {
         if (lockService.isLocked()) {
             throw new VotingLockedException();
         }
-        if (!optionRepo.findById(id).isPresent()) {
-            throw new OptionNotFoundException(id);
-        }
+        optionRepo.findById(id).orElseThrow(() -> new OptionNotFoundException(id));
         optionRepo.deleteById(id);
     }
 

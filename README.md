@@ -55,16 +55,19 @@ npm run start
 
 # Commands available within the frontend shell
 #   help               List commands
-#   options            List dinner options
+#   list               List dinner options
+#   random             Pick a random dinner option
 #   add "Name" <link>  Add a new option
-#   vote <id> <delta>  Adjust votes (+1/-1/up/down)
-#   delete <id>        Remove an option
+#   vote <id> <delta>  Adjust votes (+1/-1/up/down, use numeric id)
+#   delete <id>        Remove an option by numeric id
 #   stats              View aggregate stats
 #   lock status|on|off Inspect or toggle voting lock
 #   reset              Clear options and unlock voting
 #   health             Check backend status
 #   man <command>      Show command manual entry
 #   clear              Reset terminal output
+#   options            Legacy alias for list
+# Keyboard: Ctrl+L or Ctrl+C clears the terminal output
 ```
 
 ## Development (Docker)

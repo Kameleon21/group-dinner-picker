@@ -45,15 +45,23 @@ const MAN_PAGES: Record<string, string[]> = {
     'SEE ALSO',
     '    man <command>',
   ],
+  list: [
+    'NAME',
+    '    list - list active dinner ideas',
+    'SYNOPSIS',
+    '    list',
+    'DESCRIPTION',
+    '    Fetches each option with numeric id, link, and current vote total.',
+    'NOTES',
+    '    Use the numeric id with vote, delete, and random.',
+  ],
   options: [
     'NAME',
-    '    options - list active dinner ideas',
+    '    options - legacy alias for list',
     'SYNOPSIS',
     '    options',
     'DESCRIPTION',
-    '    Fetches each option with id, link, vote total, and short-id reference.',
-    'NOTES',
-    '    Use the printed id or short-id with vote and delete commands.',
+    '    Delegates to list. Prefer list for clarity.',
   ],
   add: [
     'NAME',
@@ -73,8 +81,8 @@ const MAN_PAGES: Record<string, string[]> = {
     'DESCRIPTION',
     '    Increments or decrements the vote total for the specified option.',
     'EXAMPLES',
-    '    vote 123e4567-e89b-12d3-a456-426614174000 +1',
-    '    vote 123e4567-e89b-12d3-a456-426614174000 down',
+    '    vote 3 +1',
+    '    vote 8 down',
   ],
   delete: [
     'NAME',
@@ -82,7 +90,7 @@ const MAN_PAGES: Record<string, string[]> = {
     'SYNOPSIS',
     '    delete <id>',
     'DESCRIPTION',
-    '    Deletes the option identified by id. Action cannot be undone.',
+    '    Deletes the option identified by numeric id. Action cannot be undone.',
   ],
   stats: [
     'NAME',
@@ -91,6 +99,16 @@ const MAN_PAGES: Record<string, string[]> = {
     '    stats',
     'DESCRIPTION',
     '    Shows total options, vote counts, averages, and the top option.',
+  ],
+  random: [
+    'NAME',
+    '    random - pick a random dinner option',
+    'SYNOPSIS',
+    '    random',
+    'DESCRIPTION',
+    '    Selects a random option from the current list and displays its details.',
+    'NOTES',
+    '    Ensures options exist before selecting; run list to review everything.',
   ],
   lock: [
     'NAME',
@@ -232,18 +250,15 @@ function formatOptions(options: Option[]): string[] {
     return ['No dinner options yet. Add one with: add "Taco Place" https://example.com']
   }
 
-  const lines: string[] = ['#  Name & votes', '──────────────────────────────────────────────────────────────']
+  const lines: string[] = ['#  id  name / votes', '──────────────────────────────────────────────────────────────']
 
   options.forEach((option, index) => {
     const position = `${index + 1}`.padStart(2, '0')
     const votesLabel = option.votes > 0 ? `+${option.votes}` : `${option.votes}`
-    const idShort = option.id.split('-')[0]
-    lines.push(`${position}  ${option.name}  [votes: ${votesLabel}]`)
-    lines.push(`    id: ${option.id}`)
+    lines.push(`${position}  id:${option.id}  ${option.name}  [votes: ${votesLabel}]`)
     if (option.link) {
       lines.push(`    link: ${option.link}`)
     }
-    lines.push(`    short-id: ${idShort}`)
   })
 
   return lines
@@ -279,16 +294,18 @@ function App() {
     () => [
       'Available commands:',
       '  help                     Show this help menu',
-      '  options                  List dinner options with ids and votes',
+      '  list                     List dinner options with ids and votes',
+      '  random                   Pick a random dinner option',
       '  add "name" <link>        Create a new option (link must start with http/https)',
-      '  vote <id> <+1|-1>        Upvote or downvote an option by id',
-      '  delete <id>              Remove an option by id',
+      '  vote <id> <+1|-1>        Upvote or downvote (use numeric id)',
+      '  delete <id>              Remove an option by numeric id',
       '  stats                    Show aggregate stats',
       '  lock status|on|off       Inspect or change voting lock state',
       '  reset                    Clear options and unlock voting',
       '  health                   Check backend health',
       '  man <command>            Show detailed manual text',
       '  clear                    Clear the terminal history',
+      '  options                  Legacy alias for list',
     ],
     []
   )
@@ -309,6 +326,13 @@ function App() {
       node.scrollTop = node.scrollHeight
     }
   }, [history])
+
+  const clearTerminal = () => {
+    setHistory(createInitialEntries())
+    setHistoryIndex(null)
+    setInput('')
+    requestAnimationFrame(() => inputRef.current?.focus())
+  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -386,8 +410,10 @@ function App() {
             },
           ])
           break
+        case 'list':
+        case 'ls':
         case 'options':
-          await handleOptions()
+          await handleList()
           break
         case 'add':
           await handleAdd(args)
@@ -400,6 +426,9 @@ function App() {
           break
         case 'stats':
           await handleStats()
+          break
+        case 'random':
+          await handleRandom()
           break
         case 'lock':
           await handleLock(args)
@@ -414,7 +443,7 @@ function App() {
           await handleMan(args)
           break
         case 'clear':
-          setHistory(createInitialEntries())
+          clearTerminal()
           break
         default:
           setHistory((prev) => [
@@ -474,7 +503,7 @@ function App() {
     ])
   }
 
-  const handleOptions = async () => {
+  const handleList = async () => {
     const options = await getOptions()
     setHistory((prev) => [
       ...prev,
@@ -483,6 +512,43 @@ function App() {
         kind: 'output',
         tone: 'success',
         lines: formatOptions(options),
+      },
+    ])
+  }
+
+  const handleRandom = async () => {
+    const options = await getOptions()
+
+    if (options.length === 0) {
+      setHistory((prev) => [
+        ...prev,
+        {
+          id: buildId(),
+          kind: 'output',
+          tone: 'info',
+          lines: ['No options available. Add one first with: add "Name" <link>'],
+        },
+      ])
+      return
+    }
+
+    const selected = options[Math.floor(Math.random() * options.length)]
+    const lines = [
+      `Random pick: ${selected.name}`,
+      `id: ${selected.id}`,
+      `votes: ${selected.votes}`,
+    ]
+    if (selected.link) {
+      lines.push(`link: ${selected.link}`)
+    }
+
+    setHistory((prev) => [
+      ...prev,
+      {
+        id: buildId(),
+        kind: 'output',
+        tone: 'success',
+        lines,
       },
     ])
   }
@@ -517,7 +583,11 @@ function App() {
       throw new Error('Usage: vote <id> <+1|-1>')
     }
 
-    const [optionId, deltaRaw] = args
+    const [optionIdRaw, deltaRaw] = args
+    const optionId = Number(optionIdRaw)
+    if (!Number.isInteger(optionId) || optionId <= 0) {
+      throw new Error('Option id must be a positive integer')
+    }
     const normalizedDelta = deltaRaw.trim().toLowerCase()
     const delta = normalizedDelta === '+1' || normalizedDelta === 'up' ? 1 : normalizedDelta === '-1' || normalizedDelta === 'down' ? -1 : NaN
 
@@ -547,7 +617,11 @@ function App() {
       throw new Error('Usage: delete <id>')
     }
 
-    const [optionId] = args
+    const [optionIdRaw] = args
+    const optionId = Number(optionIdRaw)
+    if (!Number.isInteger(optionId) || optionId <= 0) {
+      throw new Error('Option id must be a positive integer')
+    }
     await deleteOption(optionId)
 
     setHistory((prev) => [
@@ -651,6 +725,21 @@ function App() {
   }
 
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.ctrlKey && !event.altKey && !event.metaKey) {
+      const lowerKey = event.key.toLowerCase()
+      if (lowerKey === 'l' || lowerKey === 'c') {
+        const inputHasSelection =
+          event.currentTarget.selectionStart !== event.currentTarget.selectionEnd
+        const globalSelection = window.getSelection()?.toString()
+        if (lowerKey === 'c' && (globalSelection || inputHasSelection)) {
+          return
+        }
+        event.preventDefault()
+        clearTerminal()
+        return
+      }
+    }
+
     if (event.key === 'ArrowUp') {
       event.preventDefault()
       if (commandHistory.length === 0) {
