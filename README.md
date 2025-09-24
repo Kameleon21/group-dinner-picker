@@ -72,33 +72,34 @@ npm run start
 
 ## Development (Docker)
 
+The repository ships with `docker-compose.dev.yml`, which builds both the Spring Boot API and the Vite dev server. This path lets you run everything in containers without installing Java or Node locally.
+
 ```bash
-# Start all services in development mode
-docker-compose -f docker-compose.dev.yml up
+# 1. From the repository root, build the images and start the stack
+docker compose -f docker-compose.dev.yml up --build
 
-# Start specific service
-docker-compose -f docker-compose.dev.yml up frontend
-docker-compose -f docker-compose.dev.yml up backend
+# 2. On subsequent runs you can reuse the cached images
+docker compose -f docker-compose.dev.yml up
 
-# View logs
-docker-compose -f docker-compose.dev.yml logs -f
+# 3. Tail logs for either service
+docker compose -f docker-compose.dev.yml logs -f backend
+docker compose -f docker-compose.dev.yml logs -f frontend
 
-# Stop services
-docker-compose -f docker-compose.dev.yml down
+# 4. Stop and clean up containers
+docker compose -f docker-compose.dev.yml down
 ```
+
+**What you get**
+- Frontend at [http://localhost:4200](http://localhost:4200). Calls to `/api/v1/*` are proxied to the backend container, so browsers never need to talk directly to Docker hostnames.
+- Backend API at [http://localhost:8080/api/v1](http://localhost:8080/api/v1) with the `dev` Spring profile active.
+
+**Rebuilding after changes**
+- Backend: Rebuild with `docker compose -f docker-compose.dev.yml up --build backend` (or `docker compose ... build backend`) whenever Java sources change. The container runs from the packaged jar, so hot reload is not available yet.
+- Frontend: Thanks to the bind mount declared in `docker-compose.dev.yml`, Vite hot reload picks up TypeScript/React file edits automatically. Run `docker compose -f docker-compose.dev.yml build frontend` only if dependencies change.
 
 ## Production (Docker)
 
-```bash
-# Build and start production environment
-docker-compose up -d
-
-# View production logs
-docker-compose logs -f
-
-# Stop production environment
-docker-compose down
-```
+Production containerization will reuse these Dockerfiles, but the deployment stack is not scripted yet. Contributions welcome!
 
 ## API Documentation
 

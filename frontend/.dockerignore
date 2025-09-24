@@ -1,0 +1,20 @@
+# VCS metadata is managed outside the image and just slows builds
+.git
+
+# IDE project files are editor-specific and should not enter the container
+.idea
+
+# Local dependency cache gets replaced by image-layer installs
+node_modules
+
+# Built assets are regenerated inside the container; skip copying local outputs
+/dist
+/dist-ssr
+
+# Ignore developer-specific overrides and any accidental log noise
+*.local
+*.log
+*.log.*
+*.log.*.*
+*.log.*.*.*
+*.log.*.*.*.*
