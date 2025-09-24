@@ -31,7 +31,7 @@ type RequestOptions = {
   body?: unknown
 }
 
-const DEFAULT_BASE_URL = 'http://localhost:8080/api/v1'
+const DEFAULT_BASE_URL = '/api/v1'
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ?? DEFAULT_BASE_URL
 

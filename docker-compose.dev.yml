@@ -7,8 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./backend/demo:/app
     environment:
       - SPRING_PROFILES_ACTIVE=dev
     networks:
@@ -24,7 +22,8 @@ services:
       - ./frontend:/app
       - /app/node_modules
     environment:
-      - VITE_API_BASE_URL=http://backend:8080
+      - VITE_API_BASE_URL=/api/v1
+      - VITE_PROXY_TARGET=http://backend:8080
     depends_on:
       - backend
     networks:
