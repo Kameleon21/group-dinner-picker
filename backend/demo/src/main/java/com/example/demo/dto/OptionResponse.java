@@ -1,10 +1,8 @@
 package com.example.demo.dto;
 
 import java.time.Instant;
-import java.util.UUID;
-
 public class OptionResponse {
-    private UUID id;
+    private Long id;
     private String name;
     private String link;
     private int votes;
@@ -12,7 +10,7 @@ public class OptionResponse {
 
     public OptionResponse() { }
 
-    public OptionResponse(UUID id, String name, String link, int votes, Instant createdAt) {
+    public OptionResponse(Long id, String name, String link, int votes, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.link = link;
@@ -20,11 +18,11 @@ public class OptionResponse {
         this.createdAt = createdAt;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

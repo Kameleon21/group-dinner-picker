@@ -2,27 +2,25 @@ package com.example.demo.dto;
 
 import jakarta.validation.constraints.NotNull;
 
-import java.util.UUID;
-
 public class VoteRequest {
     @NotNull(message = "optionId is required")
-    private UUID optionId;
+    private Long optionId;
 
     @NotNull(message = "delta is required")
     private Integer delta; // must be +1 or -1
 
     public VoteRequest() {}
 
-    public VoteRequest(UUID optionId, Integer delta) {
+    public VoteRequest(Long optionId, Integer delta) {
         this.optionId = optionId;
         this.delta = delta;
     }
 
-    public UUID getOptionId() {
+    public Long getOptionId() {
         return optionId;
     }
 
-    public void setOptionId(UUID optionId) {
+    public void setOptionId(Long optionId) {
         this.optionId = optionId;
     }
 

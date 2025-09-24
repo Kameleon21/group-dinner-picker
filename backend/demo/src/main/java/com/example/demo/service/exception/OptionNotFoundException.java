@@ -1,9 +1,7 @@
 package com.example.demo.service.exception;
 
-import java.util.UUID;
-
 public class OptionNotFoundException extends RuntimeException {
-    public OptionNotFoundException(UUID id) {
+    public OptionNotFoundException(Long id) {
         super("Option not found: " + id);
     }
 }

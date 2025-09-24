@@ -3,9 +3,9 @@ package com.example.demo.repo;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
@@ -14,7 +14,8 @@ import com.example.demo.domain.Option;
 
 @Repository
 public class InMemoryOptionRepository implements OptionRepository {
-    private final ConcurrentMap<UUID, Option> store = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Long, Option> store = new ConcurrentHashMap<>();
+    private final AtomicLong idSequence = new AtomicLong(0);
 
     @Override
     public List<Option> findAll() {
@@ -26,7 +27,7 @@ public class InMemoryOptionRepository implements OptionRepository {
     }
 
     @Override
-    public Optional<Option> findById(UUID id) {
+    public Optional<Option> findById(Long id) {
         Option found = store.get(id);
         return Optional.ofNullable(found == null ? null : copy(found));
     }
@@ -35,7 +36,7 @@ public class InMemoryOptionRepository implements OptionRepository {
     public Option save(Option option) {
         // Ensure id + createdAt exist; domain constructor usually sets these,
         // but we enforce here in case callers used the full constructor.
-        UUID id = option.getId() != null ? option.getId() : UUID.randomUUID();
+        Long id = option.getId() != null ? option.getId() : idSequence.incrementAndGet();
         option.setId(id);
 
         // Store an internal copy to avoid callers holding a reference to our stored object
@@ -56,7 +57,7 @@ public class InMemoryOptionRepository implements OptionRepository {
     }
 
     @Override
-    public void deleteById(UUID id) {
+    public void deleteById(Long id) {
         store.remove(id);
     }
 
@@ -71,13 +72,12 @@ public class InMemoryOptionRepository implements OptionRepository {
     }
 
     private Option copy(Option o) {
-        Option c = new Option(
+        return new Option(
             o.getId(),
             o.getName(),
             o.getLink(),
             o.getVotes(),
             o.getCreatedAt()
         );
-        return c;
     }
 }

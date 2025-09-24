@@ -1,5 +1,5 @@
 export type Option = {
-  id: string
+  id: number
   name: string
   link: string
   votes: number
@@ -100,11 +100,11 @@ export async function createOption(name: string, link: string): Promise<Option> 
   return request<Option>('/options', { method: 'POST', body: { name, link } })
 }
 
-export async function vote(optionId: string, delta: number): Promise<Option> {
+export async function vote(optionId: number, delta: number): Promise<Option> {
   return request<Option>('/vote', { method: 'POST', body: { optionId, delta } })
 }
 
-export async function deleteOption(optionId: string): Promise<void> {
+export async function deleteOption(optionId: number): Promise<void> {
   await request<void>(`/options/${optionId}`, { method: 'DELETE' })
 }
 

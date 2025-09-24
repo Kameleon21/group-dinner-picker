@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -27,7 +26,7 @@ public class OptionController {
     }
 
     @GetMapping("/options/{id}")
-    public OptionResponse getOption(@PathVariable UUID id) {
+    public OptionResponse getOption(@PathVariable Long id) {
         return optionService.getOption(id);
     }
 
@@ -44,7 +43,7 @@ public class OptionController {
 
     @DeleteMapping("/options/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteOption(@PathVariable UUID id) {
+    public void deleteOption(@PathVariable Long id) {
         optionService.deleteOption(id);
     }
 
