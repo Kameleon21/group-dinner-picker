@@ -1,6 +1,6 @@
 import 'vitest'
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import { createCommandHandlers, HELP_LINES } from '../commands'
 import {
   createOption,
@@ -265,5 +265,9 @@ describe('createCommandHandlers', () => {
     expect(pushOutput).toHaveBeenCalledWith('info', [
       'No options available. Add one first with: add "Name" <link>',
     ])
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
   })
 })
