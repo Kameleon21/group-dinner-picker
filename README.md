@@ -1,9 +1,7 @@
 # Group Dinner Picker
 
 
-
-https://github.com/user-attachments/assets/d94910ca-1f12-4345-894e-eda6d304c66b
-
+https://github.com/user-attachments/assets/48644438-eee2-40f5-b9e1-1b6b7ebfc573
 
 A collaborative application for groups to decide on dinner options together.
 
