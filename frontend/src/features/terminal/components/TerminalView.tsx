@@ -1,4 +1,4 @@
-import type { FC, FormEvent, KeyboardEvent, MutableRefObject } from 'react'
+import type { FC, FormEvent, KeyboardEvent, RefObject } from 'react'
 import type { TerminalEntry } from '../types'
 import TerminalHeader from './TerminalHeader'
 import TerminalHistory from './TerminalHistory'
@@ -13,8 +13,8 @@ type TerminalViewProps = {
   onSubmit: (event: FormEvent<HTMLFormElement>) => void
   onInputChange: (value: string) => void
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void
-  inputRef: MutableRefObject<HTMLInputElement | null>
-  scrollRef: MutableRefObject<HTMLDivElement | null>
+  inputRef: RefObject<HTMLInputElement | null>
+  scrollRef: RefObject<HTMLDivElement | null>
   onViewportClick: () => void
 }
 
